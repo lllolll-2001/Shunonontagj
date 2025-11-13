@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Шиномонтаж</title>
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="script.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -14,7 +16,7 @@
     <button id="logoutBtn" class="hidden" onclick="logout()">Выйти</button>
   </header>
 
-  <!-- === Запись клиента === -->
+  <!-- === Запись === -->
   <div class="card">
     <h2>Запись</h2>
     <div class="form-row">
@@ -44,7 +46,7 @@
         <option>Смена резины</option>
         <option>Смена резины с балансировкой</option>
       </select>
-      <input type="date" id="guestDate" min="">
+      <input type="date" id="guestDate">
       <select id="guestTime"></select>
       <div>Цена: <span id="priceDisplay">-</span></div>
       <button onclick="addGuestRecord()">Записаться</button>
@@ -57,6 +59,12 @@
     <p>Мы работаем: 8:00 - 17:00</p>
     <p>Телефон: Дмитрий 0937900765</p>
     <p>Телефон: Владислав 0969575306</p>
+    <a href="https://t.me/VladyslavShunu" target="_blank">
+      <button>Написать в Telegram</button>
+    </a>
+    <a href="https://maps.app.goo.gl/hDVFX9WXePfR5HTh9" target="_blank">
+      <button>Мы на карте</button>
+    </a>
   </div>
 
   <!-- === Вход === -->
@@ -77,17 +85,20 @@
   <div class="card hidden" id="bossCard">
     <h2>Кабинет босса</h2>
     <div class="top-actions">
-      <button onclick="setBossFilter('day')">День</button>
-      <button onclick="setBossFilter('week')">Неделя</button>
-      <button onclick="setBossFilter('month')">Месяц</button>
-      <input type="date" id="fromDate"> — <input type="date" id="toDate">
-      <button onclick="filterByDateRange()">Применить</button>
+      <label>Период:
+        <select id="earningPeriod" onchange="renderRecords()">
+          <option value="day">День</option>
+          <option value="week">Неделя</option>
+          <option value="month">Месяц</option>
+        </select>
+      </label>
+      <label>С: <input type="date" id="fromDate" onchange="renderRecords()"></label>
+      <label>До: <input type="date" id="toDate" onchange="renderRecords()"></label>
       <span id="bossTotal">Сумма: 0 грн</span>
     </div>
     <div id="bossRecords"></div>
   </div>
 
 </div>
-<script src="script.js"></script>
 </body>
 </html>
