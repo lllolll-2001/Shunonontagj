@@ -29,10 +29,10 @@ async function login() {
 const timeSlots = [];
 let hour = 8, minute = 0;
 while (hour < 17) {
-    const h = String(hour).padStart(2, '0');
-    const m = String(minute).padStart(2, '0');
+    const h = String(hour).padStart(2,'0');
+    const m = String(minute).padStart(2,'0');
     timeSlots.push(`${h}:${m}`);
-    minute += 45;
+    minute += 50;
     if (minute >= 60) { hour++; minute -= 60; }
 }
 
@@ -77,11 +77,12 @@ function updatePrice() {
     document.getElementById('guestPrice').innerText = price;
 }
 
+document.getElementById('serviceSelect').addEventListener('input', updatePrice);
+
 // ===== Добавление записи =====
 async function addGuestRecord() {
     const name = document.getElementById('guestName').value.trim();
     const phone = document.getElementById('guestPhone').value.trim();
-    const car = document.getElementById('guestCarType').value.trim();
     const radius = document.getElementById('radiusSelect').value.trim();
     const service = document.getElementById('serviceSelect').value.trim();
     const date = document.getElementById('guestDate').value;
@@ -90,8 +91,8 @@ async function addGuestRecord() {
 
     if (!name || !phone || !date || !time) { alert('Заполните все поля!'); return; }
 
-    const { data, error } = await supabase.from('records').insert([{
-        name, phone, car, radius, service, date, time, status: 'Не отмечено', addedBy: 'Гость', earned
+    const { error } = await supabase.from('records').insert([{
+        name, phone, radius, service, date, time, status: 'Не отмечено', addedBy: 'Гость', earned
     }]);
 
     if (error) alert('Ошибка: ' + error.message);
@@ -107,5 +108,3 @@ async function loadRecords() {
     if (bossDiv) bossDiv.innerHTML = records.map(r => `<div>${r.name} - ${r.time} - ${r.service} - ${r.earned} грн</div>`).join('');
     if (workerDiv) workerDiv.innerHTML = records.map(r => `<div>${r.name} - ${r.time} - ${r.service} - ${r.earned} грн</div>`).join('');
 }
-
-document.getElementById('serviceSelect').addEventListener('input', updatePrice);
