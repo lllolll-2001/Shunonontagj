@@ -1,47 +1,85 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
 <title>Шиномонтаж</title>
-<link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body{background:#000;color:#fff;font-family:sans-serif;padding:20px;}
+input,select,button{margin:5px;padding:6px;border-radius:4px;}
+button{background:#f00;color:#fff;border:none;cursor:pointer;}
+</style>
 </head>
 <body>
-<div id="loginCard">
-  <h2>Вход</h2>
-  <input type="text" id="loginInput" placeholder="Логин">
-  <input type="password" id="passwordInput" placeholder="Пароль">
-  <button onclick="login()">Войти</button>
+<h1>Шиномонтаж</h1>
+
+<div>
+  <input id="name" placeholder="Имя"/>
+  <input id="phone" placeholder="Телефон"/>
+  <input type="datetime-local" id="datetime"/>
+  <select id="radius">
+    <option>15</option><option>16</option><option>17</option><option>18</option>
+  </select>
+  <label><input type="checkbox" id="replace"/>Замена резины</label>
+  <label><input type="checkbox" id="balance"/>Балансировка</label>
+  <label><input type="checkbox" id="repair"/>Ремонт</label>
+  <button onclick="createBooking()">Создать бронь</button>
 </div>
 
-<div id="bossCard" class="hidden">
-  <h2>Кабинет Боса</h2>
-  <div>
-    <input type="date" id="bossDateFrom"> — <input type="date" id="bossDateTo">
-    <button onclick="calculateEarnings()">Посчитать доход</button>
-  </div>
-  <div id="bossRecords"></div>
-</div>
+<h2>Брони</h2>
+<div id="bookings"></div>
 
-<div id="workerCard" class="hidden">
-  <h2>Кабинет Работника</h2>
-  <div id="workerRecords"></div>
-</div>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-<div id="guestCard">
-  <h2>Запись</h2>
-  <input type="text" id="guestName" placeholder="Имя">
-  <input type="text" id="guestPhone" placeholder="Телефон">
-  <input type="text" id="guestCarType" placeholder="Тип авто">
-  <input type="text" id="radiusSelect" placeholder="Радиус">
-  <input type="text" id="serviceSelect" placeholder="Услуга">
-  <input type="date" id="guestDate" min="">
-  <div id="timeButtons" class="time-buttons"></div>
-  <div>Цена: <span id="guestPrice">0</span> грн</div>
-  <button onclick="addGuestRecord()">Записаться</button>
-</div>
+const SUPABASE_URL = 'https://bmasqfcvjwydpwlqqmcu.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_vd51ZeFzGmbof7TY5ZDoUg_z-dak7Jg';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-<script src="script.js"></script>
+async function loadBookings() {
+  const { data, error } = await supabase.from('bookings').select('*').order('date', {ascending:true});
+  if(error){ console.error(error); return; }
+  const div = document.getElementById('bookings');
+  div.innerHTML = '';
+  data.forEach(b=>{
+    const d = document.createElement('div');
+    d.innerHTML = `
+      ${b.name} · ${b.phone} · ${new Date(b.date).toLocaleString()} · ${b.radius} · ${b.services} · ${b.status} · ${b.amount || 0} грн
+      <button onclick="markDone('${b.id}')">Сделано</button>
+      <button onclick="del('${b.id}')">Удалить</button>
+    `;
+    div.appendChild(d);
+  });
+}
+
+async function createBooking(){
+  const name = document.getElementById('name').value;
+  const phone = document.getElementById('phone').value;
+  const date = document.getElementById('datetime').value;  // выбранная дата и время
+  const radius = document.getElementById('radius').value;
+  const services = [];
+  if(document.getElementById('replace').checked) services.push('Замена резины');
+  if(document.getElementById('balance').checked) services.push('Балансировка');
+  if(document.getElementById('repair').checked) services.push('Ремонт');
+
+  const { data, error } = await supabase.from('bookings').insert([{ 
+    name, phone, date, radius, services:services.join(','), status:'pending', amount:0 
+  }]);
+  if(error){ console.error(error); return; }
+  loadBookings();
+}
+
+async function markDone(id){
+  const amount = parseInt(prompt('Сумма')) || 0;
+  await supabase.from('bookings').update({ status:'done', amount }).eq('id', id);
+  loadBookings();
+}
+
+async function del(id){
+  if(confirm('Удалить?')) await supabase.from('bookings').delete().eq('id', id);
+  loadBookings();
+}
+
+loadBookings();
+</script>
 </body>
 </html>
