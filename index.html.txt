@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Шином0нтаж</title>
+<title>Шиномонтаж</title>
 <style>
 body{background:#000;color:#fff;font-family:sans-serif;padding:20px;}
 input,select,button{margin:5px;padding:6px;border-radius:4px;}
@@ -15,7 +15,7 @@ button{background:#f00;color:#fff;border:none;cursor:pointer;}
 <div>
   <input id="name" placeholder="Имя"/>
   <input id="phone" placeholder="Телефон"/>
-  <input type="datetime-local" id="datetime"/>
+  <input type="date" id="date"/>  <!-- только дата -->
   <select id="radius">
     <option>15</option><option>16</option><option>17</option><option>18</option>
   </select>
@@ -43,7 +43,7 @@ async function loadBookings() {
   data.forEach(b=>{
     const d = document.createElement('div');
     d.innerHTML = `
-      ${b.name} · ${b.phone} · ${new Date(b.date).toLocaleString()} · ${b.radius} · ${b.services} · ${b.status} · ${b.amount || 0} грн
+      ${b.name} · ${b.phone} · ${b.date} · ${b.radius} · ${b.services} · ${b.status} · ${b.amount || 0} грн
       <button onclick="markDone('${b.id}')">Сделано</button>
       <button onclick="del('${b.id}')">Удалить</button>
     `;
@@ -54,7 +54,7 @@ async function loadBookings() {
 async function createBooking(){
   const name = document.getElementById('name').value;
   const phone = document.getElementById('phone').value;
-  const date = document.getElementById('datetime').value;  // выбранная дата и время
+  const date = document.getElementById('date').value;  // только дата
   const radius = document.getElementById('radius').value;
   const services = [];
   if(document.getElementById('replace').checked) services.push('Замена резины');
