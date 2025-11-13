@@ -14,7 +14,7 @@
     <button id="logoutBtn" class="hidden" onclick="logout()">Выйти</button>
   </header>
 
-  <!-- === Карточка записи === -->
+  <!-- === Запись клиента === -->
   <div class="card">
     <h2>Запись</h2>
     <div class="form-row">
@@ -29,15 +29,9 @@
         <option>Коммерческий транспорт</option>
       </select>
       <select id="radiusSelect">
-        <option>R13</option>
-        <option>R14</option>
-        <option>R15</option>
-        <option>R16</option>
-        <option>R17</option>
-        <option>R18</option>
-        <option>R19</option>
-        <option>R20</option>
-        <option>R21</option>
+        <option>R13</option><option>R14</option><option>R15</option>
+        <option>R16</option><option>R17</option><option>R18</option>
+        <option>R19</option><option>R20</option><option>R21</option>
       </select>
       <select id="serviceSelect">
         <option>Балансировка</option>
@@ -51,7 +45,7 @@
     </div>
   </div>
 
-  <!-- === Контакт и информация === -->
+  <!-- === Контакты === -->
   <div class="card">
     <h2>Контакты</h2>
     <p>Мы работаем: 8:00 - 17:00</p>
@@ -76,15 +70,12 @@
   <!-- === Кабинет работника === -->
   <div class="card hidden" id="workerCard">
     <h2>Кабинет работника</h2>
-    <button onclick="changeCredentials()">Сменить логин/пароль</button>
     <div id="workerRecords"></div>
   </div>
 
   <!-- === Кабинет босса === -->
   <div class="card hidden" id="bossCard">
     <h2>Кабинет босса</h2>
-    <button onclick="changeCredentials()">Сменить логин/пароль</button>
-    <button onclick="createWorker()">Создать работника</button>
     <div class="top-actions">
       <button onclick="setBossFilter('day')">День</button>
       <button onclick="setBossFilter('week')">Неделя</button>
