@@ -14,7 +14,6 @@
     <button id="logoutBtn" class="hidden" onclick="logout()">Выйти</button>
   </header>
 
-  <!-- === Запись клиента === -->
   <div class="card">
     <h2>Запись</h2>
     <div class="form-row">
@@ -29,9 +28,15 @@
         <option>Коммерческий транспорт</option>
       </select>
       <select id="radiusSelect">
-        <option>R13</option><option>R14</option><option>R15</option>
-        <option>R16</option><option>R17</option><option>R18</option>
-        <option>R19</option><option>R20</option><option>R21</option>
+        <option>R13</option>
+        <option>R14</option>
+        <option>R15</option>
+        <option>R16</option>
+        <option>R17</option>
+        <option>R18</option>
+        <option>R19</option>
+        <option>R20</option>
+        <option>R21</option>
       </select>
       <select id="serviceSelect">
         <option>Балансировка</option>
@@ -45,21 +50,6 @@
     </div>
   </div>
 
-  <!-- === Контакты === -->
-  <div class="card">
-    <h2>Контакты</h2>
-    <p>Мы работаем: 8:00 - 17:00</p>
-    <p>Телефон: Дмитрий 0937900765</p>
-    <p>Телефон: Владислав 0969575306</p>
-    <a href="https://t.me/VladyslavShunu" target="_blank">
-      <button>Написать в Telegram</button>
-    </a>
-    <a href="https://maps.app.goo.gl/hDVFX9WXePfR5HTh9" target="_blank">
-      <button>Мы на карте</button>
-    </a>
-  </div>
-
-  <!-- === Вход === -->
   <div class="card" id="loginCard">
     <h2>Вход</h2>
     <input type="text" id="loginInput" placeholder="Логин">
@@ -67,13 +57,11 @@
     <button onclick="login()">Войти</button>
   </div>
 
-  <!-- === Кабинет работника === -->
   <div class="card hidden" id="workerCard">
     <h2>Кабинет работника</h2>
     <div id="workerRecords"></div>
   </div>
 
-  <!-- === Кабинет босса === -->
   <div class="card hidden" id="bossCard">
     <h2>Кабинет босса</h2>
     <div class="top-actions">
