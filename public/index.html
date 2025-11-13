@@ -14,6 +14,7 @@
     <button id="logoutBtn" class="hidden" onclick="logout()">Выйти</button>
   </header>
 
+  <!-- === Запись клиента === -->
   <div class="card">
     <h2>Запись</h2>
     <div class="form-row">
@@ -50,6 +51,15 @@
     </div>
   </div>
 
+  <!-- === Контакты === -->
+  <div class="card">
+    <h2>Контакты</h2>
+    <p>Мы работаем: 8:00 - 17:00</p>
+    <p>Телефон: Дмитрий 0937900765</p>
+    <p>Телефон: Владислав 0969575306</p>
+  </div>
+
+  <!-- === Вход === -->
   <div class="card" id="loginCard">
     <h2>Вход</h2>
     <input type="text" id="loginInput" placeholder="Логин">
@@ -57,17 +67,21 @@
     <button onclick="login()">Войти</button>
   </div>
 
+  <!-- === Кабинет работника === -->
   <div class="card hidden" id="workerCard">
     <h2>Кабинет работника</h2>
     <div id="workerRecords"></div>
   </div>
 
+  <!-- === Кабинет босса === -->
   <div class="card hidden" id="bossCard">
     <h2>Кабинет босса</h2>
     <div class="top-actions">
       <button onclick="setBossFilter('day')">День</button>
       <button onclick="setBossFilter('week')">Неделя</button>
       <button onclick="setBossFilter('month')">Месяц</button>
+      <input type="date" id="fromDate"> — <input type="date" id="toDate">
+      <button onclick="filterByDateRange()">Применить</button>
       <span id="bossTotal">Сумма: 0 грн</span>
     </div>
     <div id="bossRecords"></div>
