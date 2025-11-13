@@ -9,11 +9,25 @@
 </head>
 <body>
 
+<h1>Шиномонтаж</h1>
+
 <div id="loginCard">
-  <h2>Вход</h2>
+  <h2>Вход в кабинет</h2>
   <input type="text" id="loginInput" placeholder="Логин">
   <input type="password" id="passwordInput" placeholder="Пароль">
   <button onclick="login()">Войти</button>
+</div>
+
+<div id="guestCard">
+  <h2>Бронь</h2>
+  <input type="text" id="guestName" placeholder="Имя">
+  <input type="text" id="guestPhone" placeholder="Телефон">
+  <input type="text" id="radiusSelect" placeholder="Радиус">
+  <input type="text" id="serviceSelect" placeholder="Услуга">
+  <input type="date" id="guestDate" min="">
+  <div id="timeButtons" class="time-buttons"></div>
+  <div>Цена: <span id="guestPrice">0</span> грн</div>
+  <button onclick="addGuestRecord()">Записаться</button>
 </div>
 
 <div id="bossCard" class="hidden">
@@ -28,19 +42,6 @@
 <div id="workerCard" class="hidden">
   <h2>Кабинет Работника</h2>
   <div id="workerRecords"></div>
-</div>
-
-<div id="guestCard">
-  <h2>Запись</h2>
-  <input type="text" id="guestName" placeholder="Имя">
-  <input type="text" id="guestPhone" placeholder="Телефон">
-  <input type="text" id="guestCarType" placeholder="Тип авто">
-  <input type="text" id="radiusSelect" placeholder="Радиус">
-  <input type="text" id="serviceSelect" placeholder="Услуга">
-  <input type="date" id="guestDate" min="">
-  <div id="timeButtons" class="time-buttons"></div>
-  <div>Цена: <span id="guestPrice">0</span> грн</div>
-  <button onclick="addGuestRecord()">Записаться</button>
 </div>
 
 <script src="script.js"></script>
