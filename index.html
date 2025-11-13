@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Шиномонтаж</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Шиномонтаж</h1>
+  </header>
+
+  <!-- === Карточка записи === -->
+  <div class="card">
+    <h2>Запись</h2>
+    <div class="form-row">
+      <input type="text" id="guestName" placeholder="Имя">
+      <select id="guestCarType">
+        <option>Легковая</option>
+        <option>Кроссовер</option>
+        <option>Внедорожник</option>
+        <option>Микроавтобус</option>
+        <option>Коммерческий транспорт</option>
+      </select>
+      <select id="radiusSelect">
+        <option>R13</option>
+        <option>R14</option>
+        <option>R15</option>
+        <option>R16</option>
+        <option>R17</option>
+        <option>R18</option>
+        <option>R19</option>
+        <option>R20</option>
+        <option>R21</option>
+      </select>
+      <select id="serviceSelect">
+        <option>Замена резины</option>
+        <option>Балансировка</option>
+        <option>Ремонт шины</option>
+      </select>
+      <input type="date" id="guestDate" min="">
+      <select id="guestTime"></select>
+      <button onclick="addGuestRecord()">Записаться</button>
+    </div>
+
+    <!-- === График и контакты === -->
+    <div class="info-row">
+      <p>График работы: 8:00 - 17:00</p>
+      <a href="https://maps.app.goo.gl/8dckvubnHAVDgD2G6" target="_blank"><button>Мы на карте</button></a>
+      <a href="https://t.me/VladyslavShunu" target="_blank"><button>Telegram</button></a>
+    </div>
+  </div>
+
+  <!-- === Вход === -->
+  <div class="card" id="loginCard">
+    <h2>Вход</h2>
+    <input type="text" id="loginInput" placeholder="Логин">
+    <input type="password" id="passwordInput" placeholder="Пароль">
+    <button onclick="login()">Войти</button>
+  </div>
+
+  <!-- === Кабинет работника === -->
+  <div class="card hidden" id="workerCard">
+    <h2>Кабинет работника</h2>
+    <div id="workerRecords"></div>
+  </div>
+
+  <!-- === Кабинет босса === -->
+  <div class="card hidden" id="bossCard">
+    <h2>Кабинет босса</h2>
+    <div class="top-actions">
+      <button onclick="setBossFilter('day')">День</button>
+      <button onclick="setBossFilter('week')">Неделя</button>
+      <button onclick="setBossFilter('month')">Месяц</button>
+      <span id="bossTotal">Сумма: 0 грн</span>
+    </div>
+    <div id="bossRecords"></div>
+  </div>
+
+</div>
+<script src="script.js"></script>
+</body>
+</html>
