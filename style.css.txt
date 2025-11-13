@@ -1,7 +1,0 @@
-.hidden{display:none;}
-input, button{padding:6px;margin:4px 0;display:block;}
-button{cursor:pointer;border:none;border-radius:6px;background:#ff3b3b;color:#fff;}
-.time-buttons{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0;}
-.time-buttons button{padding:6px 10px;border:none;border-radius:6px;cursor:pointer;background:#ff3b3b;color:#fff;}
-.time-buttons button.busy{background:#555;cursor:not-allowed;}
-.time-buttons button.selected{border:2px solid #fff;}
