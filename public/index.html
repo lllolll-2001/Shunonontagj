@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Шиномонтаж</title>
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -14,39 +15,41 @@
     <button id="logoutBtn" class="hidden" onclick="logout()">Выйти</button>
   </header>
 
-  <!-- === Запись === -->
-  <div class="card">
+  <!-- === Карточка записи === -->
+  <div class="card" id="guestCard">
     <h2>Запись</h2>
-    <input type="text" id="guestName" placeholder="Имя">
-    <input type="text" id="guestPhone" placeholder="Телефон">
-    <select id="guestCarType">
-      <option>Легковая</option>
-      <option>Кроссовер</option>
-      <option>Внедорожник</option>
-      <option>Микроавтобус</option>
-      <option>Грузовые</option>
-      <option>Коммерческий транспорт</option>
-    </select>
-    <select id="radiusSelect">
-      <option>R13</option>
-      <option>R14</option>
-      <option>R15</option>
-      <option>R16</option>
-      <option>R17</option>
-      <option>R18</option>
-      <option>R19</option>
-      <option>R20</option>
-      <option>R21</option>
-    </select>
-    <select id="serviceSelect">
-      <option>Балансировка</option>
-      <option>Смена резины</option>
-      <option>Смена резины с балансировкой</option>
-    </select>
-    <input type="date" id="guestDate" min="">
-    <div id="timeButtonsContainer"></div>
-    <div>Цена: <span id="priceDisplay">-</span></div>
-    <button onclick="addGuestRecord()">Записаться</button>
+    <div class="form-row">
+      <input type="text" id="guestName" placeholder="Имя">
+      <input type="text" id="guestPhone" placeholder="Телефон">
+      <select id="guestCarType">
+        <option>Легковая</option>
+        <option>Кроссовер</option>
+        <option>Внедорожник</option>
+        <option>Микроавтобус</option>
+        <option>Грузовые</option>
+        <option>Коммерческий транспорт</option>
+      </select>
+      <select id="radiusSelect">
+        <option>R13</option>
+        <option>R14</option>
+        <option>R15</option>
+        <option>R16</option>
+        <option>R17</option>
+        <option>R18</option>
+        <option>R19</option>
+        <option>R20</option>
+        <option>R21</option>
+      </select>
+      <select id="serviceSelect">
+        <option>Балансировка</option>
+        <option>Смена резины</option>
+        <option>Смена резины с балансировкой</option>
+      </select>
+      <input type="date" id="guestDate" min="">
+      <div id="timeButtons"></div>
+      <div>Цена: <span id="priceDisplay">-</span></div>
+      <button onclick="addGuestRecord()">Записаться</button>
+    </div>
   </div>
 
   <!-- === Вход === -->
@@ -66,18 +69,16 @@
   <!-- === Кабинет босса === -->
   <div class="card hidden" id="bossCard">
     <h2>Кабинет босса</h2>
-    <div>
-      <button onclick="setBossFilter('day')">День</button>
-      <button onclick="setBossFilter('week')">Неделя</button>
-      <button onclick="setBossFilter('month')">Месяц</button>
-      <span id="bossTotal">Сумма: 0 грн</span>
+    <div class="top-actions">
+      <button onclick="filterRecords('day')">День</button>
+      <button onclick="filterRecords('week')">Неделя</button>
+      <button onclick="filterRecords('month')">Месяц</button>
     </div>
     <div id="bossRecords"></div>
+    <div id="bossTotal">Сумма: 0 грн</div>
   </div>
 
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js"></script>
 </body>
 </html>
