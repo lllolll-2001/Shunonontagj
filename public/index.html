@@ -4,101 +4,208 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Шиномонтаж</title>
-<link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script defer src="script.js"></script>
+<style>
+:root{
+  --bg:#121217; --card:#1f1f24; --accent:#ff3b3b; --text:#f5f5f5; --muted:#bbbbbb;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:Inter,Arial,Helvetica,sans-serif;
+  background:linear-gradient(180deg,#0f0f14 0%, #15151a 100%);
+  color:var(--text);-webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:980px;margin:24px auto;padding:16px}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+header h1{color:var(--accent);margin:0}
+.card{background:var(--card);padding:14px;border-radius:10px;margin-bottom:14px;box-shadow:0 6px 18px rgba(0,0,0,0.45)}
+.form-row input, .form-row select {width:100%;padding:10px;margin:8px 0;border-radius:8px;border:1px solid #333;background:#0f1114;color:var(--text)}
+button{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer}
+button:hover{opacity:.95}
+.hidden{display:none}
+#timeButtons button{padding:6px 8px;border:none;border-radius:6px;color:#fff;cursor:pointer}
+#timeButtons button.selected{background-color:#ff8080 !important}
+</style>
 </head>
 <body>
 <div class="wrap">
+<header>
+<h1>Шиномонтаж</h1>
+<button id="logoutBtn" class="hidden" onclick="logout()">Выйти</button>
+</header>
 
-  <header>
-    <h1>Шиномонтаж</h1>
-    <button id="logoutBtn" class="hidden" onclick="logout()">Выйти</button>
-  </header>
-
-  <!-- === Запись === -->
-  <div class="card">
-    <h2>Запись</h2>
-    <div class="form-row">
-      <input type="text" id="guestName" placeholder="Имя">
-      <input type="text" id="guestPhone" placeholder="Телефон">
-      <select id="guestCarType">
-        <option>Легковая</option>
-        <option>Кроссовер</option>
-        <option>Внедорожник</option>
-        <option>Микроавтобус</option>
-        <option>Грузовые</option>
-        <option>Коммерческий транспорт</option>
-      </select>
-      <select id="radiusSelect">
-        <option>R13</option>
-        <option>R14</option>
-        <option>R15</option>
-        <option>R16</option>
-        <option>R17</option>
-        <option>R18</option>
-        <option>R19</option>
-        <option>R20</option>
-        <option>R21</option>
-      </select>
-      <select id="serviceSelect">
-        <option>Балансировка</option>
-        <option>Смена резины</option>
-        <option>Смена резины с балансировкой</option>
-      </select>
-      <input type="date" id="guestDate">
-      <select id="guestTime"></select>
-      <div>Цена: <span id="priceDisplay">-</span></div>
-      <button onclick="addGuestRecord()">Записаться</button>
-    </div>
-  </div>
-
-  <!-- === Контакты === -->
-  <div class="card">
-    <h2>Контакты</h2>
-    <p>Мы работаем: 8:00 - 17:00</p>
-    <p>Телефон: Дмитрий 0937900765</p>
-    <p>Телефон: Владислав 0969575306</p>
-    <a href="https://t.me/VladyslavShunu" target="_blank">
-      <button>Написать в Telegram</button>
-    </a>
-    <a href="https://maps.app.goo.gl/hDVFX9WXePfR5HTh9" target="_blank">
-      <button>Мы на карте</button>
-    </a>
-  </div>
-
-  <!-- === Вход === -->
-  <div class="card" id="loginCard">
-    <h2>Вход</h2>
-    <input type="text" id="loginInput" placeholder="Логин">
-    <input type="password" id="passwordInput" placeholder="Пароль">
-    <button onclick="login()">Войти</button>
-  </div>
-
-  <!-- === Кабинет работника === -->
-  <div class="card hidden" id="workerCard">
-    <h2>Кабинет работника</h2>
-    <div id="workerRecords"></div>
-  </div>
-
-  <!-- === Кабинет босса === -->
-  <div class="card hidden" id="bossCard">
-    <h2>Кабинет босса</h2>
-    <div class="top-actions">
-      <label>Период:
-        <select id="earningPeriod" onchange="renderRecords()">
-          <option value="day">День</option>
-          <option value="week">Неделя</option>
-          <option value="month">Месяц</option>
-        </select>
-      </label>
-      <label>С: <input type="date" id="fromDate" onchange="renderRecords()"></label>
-      <label>До: <input type="date" id="toDate" onchange="renderRecords()"></label>
-      <span id="bossTotal">Сумма: 0 грн</span>
-    </div>
-    <div id="bossRecords"></div>
-  </div>
-
+<div class="card">
+<h2>Запись</h2>
+<div class="form-row">
+<input type="text" id="guestName" placeholder="Имя">
+<input type="text" id="guestPhone" placeholder="Телефон">
+<select id="guestCarType">
+<option>Легковая</option><option>Кроссовер</option><option>Внедорожник</option><option>Микроавтобус</option><option>Грузовые</option><option>Коммерческий транспорт</option>
+</select>
+<select id="radiusSelect">
+<option>R13</option><option>R14</option><option>R15</option><option>R16</option><option>R17</option><option>R18</option><option>R19</option><option>R20</option><option>R21</option>
+</select>
+<select id="serviceSelect">
+<option>Балансировка</option>
+<option>Смена резины</option>
+<option>Смена резины с балансировкой</option>
+</select>
+<input type="date" id="guestDate" min="">
+<div id="timeButtons" style="display:flex; flex-wrap:wrap; gap:6px; margin:8px 0;"></div>
+<input type="hidden" id="guestTime">
+<div>Цена: <span id="priceDisplay">-</span></div>
+<button onclick="addGuestRecord()">Записаться</button>
 </div>
+</div>
+
+<div class="card" id="loginCard">
+<h2>Вход</h2>
+<input type="text" id="loginInput" placeholder="Логин">
+<input type="password" id="passwordInput" placeholder="Пароль">
+<button onclick="login()">Войти</button>
+</div>
+
+<div class="card hidden" id="workerCard">
+<h2>Кабинет работника</h2>
+<div id="workerRecords"></div>
+</div>
+
+<div class="card hidden" id="bossCard">
+<h2>Кабинет босса</h2>
+<div>
+<button onclick="setBossFilter('day')">День</button>
+<button onclick="setBossFilter('week')">Неделя</button>
+<button onclick="setBossFilter('month')">Месяц</button>
+Сумма: <span id="bossTotal">0</span> грн
+</div>
+<div id="bossRecords"></div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+const supabaseUrl = 'https://bmasqfcvjwydpwlqqmcu.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtYXNxZmN2and5ZHB3bHFxbWN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5NTczNDYsImV4cCI6MjA3ODUzMzM0Nn0.X2MKrdXkdHPKq-STrsUP-l_SxXYzMttjUU8yc7eWC1k';
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+let currentUser = null;
+let bossFilter = 'day';
+
+// ----------------- ВРЕМЯ -----------------
+async function renderTimeButtons(){
+    const container = document.getElementById('timeButtons');
+    container.innerHTML = '';
+    const date = document.getElementById('guestDate').value;
+    if(!date) return;
+
+    const { data: todaysRecords } = await supabase.from('records').select('time').eq('date', date);
+    const busyTimes = todaysRecords.map(r=>r.time);
+
+    let hour=8, minute=0;
+    while(hour<16 || (hour===16 && minute<=15)){
+        const hh=hour.toString().padStart(2,'0');
+        const mm=minute.toString().padStart(2,'0');
+        const timeStr = `${hh}:${mm}`;
+        const btn = document.createElement('button');
+        btn.textContent = timeStr;
+        if(busyTimes.includes(timeStr)){
+            btn.disabled=true; btn.style.backgroundColor='#888';
+        } else {
+            btn.style.backgroundColor='#ff3b3b';
+            btn.onclick = () => {
+                Array.from(container.children).forEach(b=>b.classList.remove('selected'));
+                btn.classList.add('selected'); btn.style.backgroundColor='#ff8080';
+                document.getElementById('guestTime').value = timeStr;
+            };
+        }
+        container.appendChild(btn);
+        minute+=45; if(minute>=60){minute-=60; hour++;}
+    }
+}
+
+// ----------------- ДАТА -----------------
+document.getElementById('guestDate').min = new Date().toISOString().split('T')[0];
+document.getElementById('guestDate').addEventListener('change', renderTimeButtons);
+
+// ----------------- ЦЕНА -----------------
+const priceTable = {
+  'Легковая': { '13-15': {balance:400, full:600}, '16-18': {balance:480, full:720}, '19-21': {balance:560, full:840} },
+  'Кроссовер': { '13-15': {balance:440, full:680}, '16-18': {balance:520, full:800}, '19-21': {balance:600, full:920} },
+  'Внедорожник': { '13-15': {balance:480, full:740}, '16-18': {balance:560, full:860}, '19-21': {balance:640, full:980} },
+  'Микроавтобус': { '13-15': {balance:440, full:680}, '16-18': {balance:520, full:800}, '19-21': {balance:600, full:920} },
+  'Грузовые': { '13-15': {balance:480, full:740}, '16-18': {balance:560, full:860}, '19-21': {balance:640, full:980} },
+  'Коммерческий транспорт': {}
+};
+
+function getRadiusRange(radius){
+  const r=parseInt(radius.replace('R',''));
+  if(r>=13 && r<=15) return '13-15';
+  if(r>=16 && r<=18) return '16-18';
+  if(r>=19 && r<=21) return '19-21';
+  return '';
+}
+
+function updatePrice(){
+  const car = document.getElementById('guestCarType').value;
+  const radius = document.getElementById('radiusSelect').value;
+  const service = document.getElementById('serviceSelect').value;
+  const range = getRadiusRange(radius);
+  let priceText = '-';
+  if(priceTable[car] && priceTable[car][range]){
+    if(service.includes('Балансировка') && service.includes('с')) priceText='от '+priceTable[car][range].full+' грн';
+    else if(service.includes('Балансировка')) priceText='от '+priceTable[car][range].balance+' грн';
+  }
+  document.getElementById('priceDisplay').innerText = priceText;
+}
+['guestCarType','radiusSelect','serviceSelect'].forEach(id=>document.getElementById(id).addEventListener('change', updatePrice));
+
+// ----------------- ДОБАВЛЕНИЕ ЗАПИСИ -----------------
+async function addGuestRecord(){
+  const name=document.getElementById('guestName').value.trim();
+  const phone=document.getElementById('guestPhone').value.trim();
+  const car=document.getElementById('guestCarType').value;
+  const radius=document.getElementById('radiusSelect').value;
+  const service=document.getElementById('serviceSelect').value;
+  const date=document.getElementById('guestDate').value;
+  const time=document.getElementById('guestTime').value;
+
+  if(!name||!phone||!date||!time){alert('Заполните все поля!'); return;}
+
+  const { data: exists } = await supabase.from('records').select('id').eq('date',date).eq('time',time);
+  if(exists.length>0){alert('Выбранное время занято!'); return;}
+
+  await supabase.from('records').insert([{name,phone,car,radius,service,date,time,status:'Не отмечено',addedBy:'guest',earned:0}]);
+  alert('Запись добавлена!');
+  renderTimeButtons();
+}
+
+// ----------------- Вход -----------------
+async function login(){
+  const loginVal=document.getElementById('loginInput').value.trim();
+  const passVal=document.getElementById('passwordInput').value.trim();
+
+  const { data: user } = await supabase.from('users').select('*').eq('login',loginVal).eq('password',passVal).single();
+  if(user){
+    currentUser=user;
+    document.getElementById('logoutBtn').classList.remove('hidden');
+    document.getElementById('loginCard').classList.add('hidden');
+    if(user.role==='boss') document.getElementById('bossCard').classList.remove('hidden');
+    else document.getElementById('workerCard').classList.remove('hidden');
+    alert(`Вход выполнен. Роль: ${user.role}`);
+  } else alert('Неверный логин или пароль');
+}
+
+function logout(){
+  currentUser=null;
+  ['bossCard','workerCard'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  document.getElementById('logoutBtn').classList.add('hidden');
+  document.getElementById('loginCard').classList.remove('hidden');
+}
+
+// ----------------- ИНИЦИАЛИЗАЦИЯ -----------------
+document.addEventListener('DOMContentLoaded',()=>{
+  updatePrice();
+  renderTimeButtons();
+});
+</script>
 </body>
 </html>
