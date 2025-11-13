@@ -5,75 +5,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Шиномонтаж</title>
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<div class="wrap">
 
-  <header>
-    <h1>Шиномонтаж</h1>
-    <button id="logoutBtn" class="hidden" onclick="logout()">Выйти</button>
-  </header>
-
-  <!-- === Запись === -->
-  <div class="card" id="guestCard">
-    <h2>Запись</h2>
-    <div class="form-row">
-      <input type="text" id="guestName" placeholder="Имя">
-      <input type="text" id="guestPhone" placeholder="Телефон">
-      <select id="guestCarType">
-        <option>Легковая</option>
-        <option>Кроссовер</option>
-        <option>Внедорожник</option>
-        <option>Микроавтобус</option>
-        <option>Грузовые</option>
-        <option>Коммерческий транспорт</option>
-      </select>
-      <select id="radiusSelect">
-        <option>R13</option>
-        <option>R14</option>
-        <option>R15</option>
-        <option>R16</option>
-        <option>R17</option>
-        <option>R18</option>
-        <option>R19</option>
-        <option>R20</option>
-        <option>R21</option>
-      </select>
-      <select id="serviceSelect">
-        <option>Балансировка</option>
-        <option>Смена резины</option>
-        <option>Смена резины с балансировкой</option>
-      </select>
-      <input type="date" id="guestDate" min="">
-      <select id="guestTime">
-        <!-- Время заполнится JS -->
-      </select>
-      <div>Цена: <span id="priceDisplay">от -</span></div>
-      <button onclick="addGuestRecord()">Записаться</button>
-    </div>
-  </div>
-
-  <!-- === Вход === -->
-  <div class="card" id="loginCard">
-    <h2>Вход</h2>
-    <input type="text" id="loginInput" placeholder="Логин">
-    <input type="password" id="passwordInput" placeholder="Пароль">
-    <button onclick="login()">Войти</button>
-  </div>
-
-  <!-- === Кабинет работника === -->
-  <div class="card hidden" id="workerCard">
-    <h2>Кабинет работника</h2>
-    <div id="workerRecords"></div>
-  </div>
-
-  <!-- === Кабинет босса === -->
-  <div class="card hidden" id="bossCard">
-    <h2>Кабинет босса</h2>
-    <div id="bossRecords"></div>
-  </div>
-
+<div id="loginCard">
+  <h2>Вход</h2>
+  <input type="text" id="loginInput" placeholder="Логин">
+  <input type="password" id="passwordInput" placeholder="Пароль">
+  <button onclick="login()">Войти</button>
 </div>
+
+<div id="bossCard" class="hidden">
+  <h2>Кабинет Боса</h2>
+  <div>
+    <input type="date" id="bossDateFrom"> — <input type="date" id="bossDateTo">
+    <button onclick="calculateEarnings()">Посчитать доход</button>
+  </div>
+  <div id="bossRecords"></div>
+</div>
+
+<div id="workerCard" class="hidden">
+  <h2>Кабинет Работника</h2>
+  <div id="workerRecords"></div>
+</div>
+
+<div id="guestCard">
+  <h2>Запись</h2>
+  <input type="text" id="guestName" placeholder="Имя">
+  <input type="text" id="guestPhone" placeholder="Телефон">
+  <input type="text" id="guestCarType" placeholder="Тип авто">
+  <input type="text" id="radiusSelect" placeholder="Радиус">
+  <input type="text" id="serviceSelect" placeholder="Услуга">
+  <input type="date" id="guestDate" min="">
+  <div id="timeButtons" class="time-buttons"></div>
+  <div>Цена: <span id="guestPrice">0</span> грн</div>
+  <button onclick="addGuestRecord()">Записаться</button>
+</div>
+
 <script src="script.js"></script>
 </body>
 </html>
