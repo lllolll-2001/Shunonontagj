@@ -4,108 +4,108 @@ const SUPABASE_KEY = 'sb_publishable_vd51ZeFzGmbof7TY5ZDoUg_z-dak7Jg';
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ===== Логин =====
-async function login(){
-  const loginVal = document.getElementById('loginInput').value.trim();
-  const passVal = document.getElementById('passwordInput').value.trim();
+async function login() {
+    const loginVal = document.getElementById('loginInput').value.trim();
+    const passVal = document.getElementById('passwordInput').value.trim();
 
-  const {data, error} = await supabase
-    .from('users')
-    .select('*')
-    .eq('login', loginVal)
-    .eq('password', passVal)
-    .single();
+    const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('login', loginVal)
+        .eq('password', passVal)
+        .single();
 
-  if(error){ alert('Неверный логин или пароль'); return; }
+    if (error) { alert('Неверный логин или пароль'); return; }
 
-  alert(`Вход выполнен. Роль: ${data.role}`);
-  document.getElementById('loginCard').classList.add('hidden');
-  if(data.role==='boss') document.getElementById('bossCard').classList.remove('hidden');
-  else document.getElementById('workerCard').classList.remove('hidden');
+    alert(`Вход выполнен. Роль: ${data.role}`);
+    document.getElementById('loginCard').classList.add('hidden');
+    if (data.role === 'boss') document.getElementById('bossCard').classList.remove('hidden');
+    else document.getElementById('workerCard').classList.remove('hidden');
 
-  loadRecords();
+    loadRecords();
 }
 
 // ===== Время через кнопки =====
-const timeSlots=[];
-let hour=8, minute=0;
-while(hour<17){
-    const h=String(hour).padStart(2,'0');
-    const m=String(minute).padStart(2,'0');
+const timeSlots = [];
+let hour = 8, minute = 0;
+while (hour < 17) {
+    const h = String(hour).padStart(2, '0');
+    const m = String(minute).padStart(2, '0');
     timeSlots.push(`${h}:${m}`);
-    minute+=45;
-    if(minute>=60){hour++; minute=minute-60;}
+    minute += 45;
+    if (minute >= 60) { hour++; minute -= 60; }
 }
 
-let selectedTime=null;
-const timeDiv=document.getElementById('timeButtons');
+let selectedTime = null;
+const timeDiv = document.getElementById('timeButtons');
 
-async function loadTimeButtons(){
-  const date=document.getElementById('guestDate').value;
-  if(!date) return;
+async function loadTimeButtons() {
+    const date = document.getElementById('guestDate').value;
+    if (!date) return;
 
-  const {data: records} = await supabase
-    .from('records')
-    .select('time')
-    .eq('date', date);
+    const { data: records } = await supabase
+        .from('records')
+        .select('time')
+        .eq('date', date);
 
-  const bookedTimes = records ? records.map(r=>r.time) : [];
+    const bookedTimes = records ? records.map(r => r.time) : [];
+    timeDiv.innerHTML = '';
 
-  timeDiv.innerHTML='';
-  timeSlots.forEach(t=>{
-    const btn=document.createElement('button');
-    btn.innerText=t;
-    if(bookedTimes.includes(t)) btn.classList.add('busy');
-    else btn.onclick=()=>{
-      selectedTime=t;
-      document.querySelectorAll('#timeButtons button').forEach(b=>b.classList.remove('selected'));
-      btn.classList.add('selected');
-    };
-    timeDiv.appendChild(btn);
-  });
+    timeSlots.forEach(t => {
+        const btn = document.createElement('button');
+        btn.innerText = t;
+        if (bookedTimes.includes(t)) btn.classList.add('busy');
+        else btn.onclick = () => {
+            selectedTime = t;
+            document.querySelectorAll('#timeButtons button').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        };
+        timeDiv.appendChild(btn);
+    });
 }
 
 document.getElementById('guestDate').addEventListener('change', loadTimeButtons);
-document.getElementById('guestDate').value=new Date().toISOString().split('T')[0];
+document.getElementById('guestDate').value = new Date().toISOString().split('T')[0];
 loadTimeButtons();
 
 // ===== Цена =====
-function updatePrice(){
-  const service=document.getElementById('serviceSelect').value.trim();
-  let price=0;
-  if(service.toLowerCase().includes('шиномонтаж')) price=200;
-  else if(service.toLowerCase().includes('балансировка')) price=100;
-  document.getElementById('guestPrice').innerText=price;
+function updatePrice() {
+    const service = document.getElementById('serviceSelect').value.trim().toLowerCase();
+    let price = 0;
+    if (service.includes('шиномонтаж')) price = 200;
+    else if (service.includes('балансировка')) price = 100;
+    document.getElementById('guestPrice').innerText = price;
 }
 
 // ===== Добавление записи =====
-async function addGuestRecord(){
-  const name=document.getElementById('guestName').value.trim();
-  const phone=document.getElementById('guestPhone').value.trim();
-  const car=document.getElementById('guestCarType').value.trim();
-  const radius=document.getElementById('radiusSelect').value.trim();
-  const service=document.getElementById('serviceSelect').value.trim();
-  const date=document.getElementById('guestDate').value;
-  const time=selectedTime;
+async function addGuestRecord() {
+    const name = document.getElementById('guestName').value.trim();
+    const phone = document.getElementById('guestPhone').value.trim();
+    const car = document.getElementById('guestCarType').value.trim();
+    const radius = document.getElementById('radiusSelect').value.trim();
+    const service = document.getElementById('serviceSelect').value.trim();
+    const date = document.getElementById('guestDate').value;
+    const time = selectedTime;
+    const earned = Number(document.getElementById('guestPrice').innerText);
 
-  if(!name||!phone||!date||!time){ alert('Заполните все поля!'); return; }
+    if (!name || !phone || !date || !time) { alert('Заполните все поля!'); return; }
 
-  const {data, error}=await supabase.from('records').insert([{
-    name, phone, car, radius, service, date, time, status:'Не отмечено', addedBy:'Гость', earned:updatePrice()
-  }]);
+    const { data, error } = await supabase.from('records').insert([{
+        name, phone, car, radius, service, date, time, status: 'Не отмечено', addedBy: 'Гость', earned
+    }]);
 
-  if(error) alert('Ошибка: '+error.message);
-  else { alert('Запись добавлена!'); selectedTime=null; loadTimeButtons(); updatePrice(); }
+    if (error) alert('Ошибка: ' + error.message);
+    else { alert('Запись добавлена!'); selectedTime = null; loadTimeButtons(); updatePrice(); }
 }
 
-// ===== Загрузка записей (для боса и работника) =====
-async function loadRecords(){
-  const {data: records}=await supabase.from('records').select('*');
-  const bossDiv=document.getElementById('bossRecords');
-  const workerDiv=document.getElementById('workerRecords');
+// ===== Загрузка записей =====
+async function loadRecords() {
+    const { data: records } = await supabase.from('records').select('*');
+    const bossDiv = document.getElementById('bossRecords');
+    const workerDiv = document.getElementById('workerRecords');
 
-  if(bossDiv) bossDiv.innerHTML=records.map(r=>`<div>${r.name} - ${r.time} - ${r.service} - ${r.earned} грн</div>`).join('');
-  if(workerDiv) workerDiv.innerHTML=records.map(r=>`<div>${r.name} - ${r.time} - ${r.service} - ${r.earned} грн</div>`).join('');
+    if (bossDiv) bossDiv.innerHTML = records.map(r => `<div>${r.name} - ${r.time} - ${r.service} - ${r.earned} грн</div>`).join('');
+    if (workerDiv) workerDiv.innerHTML = records.map(r => `<div>${r.name} - ${r.time} - ${r.service} - ${r.earned} грн</div>`).join('');
 }
 
-// ===== Обновление цены при вводе услуги =====
 document.getElementById('serviceSelect').addEventListener('input', updatePrice);
