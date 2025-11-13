@@ -4,8 +4,6 @@
   --accent:#ff3b3b;
   --text:#f5f5f5;
   --muted:#bbbbbb;
-  --free:#ff3b3b;
-  --busy:#888888;
 }
 *{box-sizing:border-box}
 body{
@@ -13,32 +11,16 @@ body{
   font-family:Inter,Arial,Helvetica,sans-serif;
   background:linear-gradient(180deg,#0f0f14 0%, #15151a 100%);
   color:var(--text);
-  -webkit-font-smoothing:antialiased;
 }
 .wrap{max-width:980px;margin:24px auto;padding:16px}
 header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 header h1{color:var(--accent);margin:0}
 .card{background:var(--card);padding:14px;border-radius:10px;margin-bottom:14px;box-shadow:0 6px 18px rgba(0,0,0,0.45)}
-.form-row input, .form-row select {width:100%;padding:10px;margin:8px 0;border-radius:8px;border:1px solid #333;background:#0f1114;color:var(--text)}
-button{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer}
+input, select, button{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:1px solid #333;background:#0f1114;color:var(--text)}
+button{background:var(--accent);color:#fff;border:none;cursor:pointer}
 button:hover{opacity:.95}
-.msg{margin-top:6px;color:#9be39b}
-.small{color:var(--muted);text-align:center;margin-top:6px}
-.hint{color:var(--muted);font-size:13px}
 .hidden{display:none}
-.row{display:flex;gap:12px}
-.col{flex:1}
-.top-actions{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
-.top-actions span{color:var(--muted)}
-.record{
-  background:linear-gradient(180deg,#16161a,#111114);
-  border:1px solid rgba(255,255,255,0.04);
-  padding:10px;border-radius:8px;margin:8px 0;
-}
-.record .meta{color:var(--muted);font-size:13px;margin-top:6px}
-.controls{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
-.controls button{padding:6px 8px;font-size:13px}
-.time-buttons{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.time-buttons button{padding:6px 10px;font-size:14px;border-radius:6px;border:none;cursor:pointer;color:#fff}
-.time-buttons button.free{background:var(--free)}
-.time-buttons button.busy{background:var(--busy);cursor:not-allowed}
+#timeButtonsContainer{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
+.time-btn{flex:1 0 80px;padding:6px;border-radius:6px;border:none;color:#fff;cursor:pointer}
+.time-btn.free{background:#ff3b3b}
+.time-btn.taken{background:#555;cursor:default}
