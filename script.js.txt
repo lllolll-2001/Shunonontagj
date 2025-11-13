@@ -1,137 +1,46 @@
-let currentUser = null;
-let records = [];
-let bossFilter = 'day';
-
-// ====== Слоты по времени ======
-function fillTimeSelect() {
-  const select = document.getElementById('guestTime');
-  select.innerHTML = '';
-  for(let h=8; h<17; h++){
-    select.innerHTML += `<option>${h}:00</option>`;
-    select.innerHTML += `<option>${h}:50</option>`;
-  }
-}
-fillTimeSelect();
-
-// ====== Минимальная дата ======
 document.getElementById('guestDate').min = new Date().toISOString().split('T')[0];
 
-// ====== Добавление записи ======
-async function addGuestRecord(){
-  const record = {
-    name: document.getElementById('guestName').value.trim(),
-    phone: document.getElementById('guestPhone').value.trim(),
-    car: document.getElementById('guestCarType').value,
-    radius: document.getElementById('radiusSelect').value,
-    service: document.getElementById('serviceSelect').value,
-    date: document.getElementById('guestDate').value,
-    time: document.getElementById('guestTime').value
-  };
+async function fetchRecords() {
+  const res = await fetch('/api/records');
+  return await res.json();
+}
 
-  if(!record.name || !record.phone || !record.date || !record.time){
-    alert('Заполните все поля!');
-    return;
-  }
+async function addGuestRecord() {
+  const name = document.getElementById('guestName').value.trim();
+  const phone = document.getElementById('guestPhone').value.trim();
+  const car = document.getElementById('guestCarType').value;
+  const radius = document.getElementById('radiusSelect').value;
+  const service = document.getElementById('serviceSelect').value;
+  const date = document.getElementById('guestDate').value;
+  const time = document.getElementById('guestTime').value;
 
-  const res = await fetch('/api', {
+  if (!name || !phone || !date || !time) { alert('Заполните все поля!'); return; }
+
+  const res = await fetch('/api/records', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(record)
+    body: JSON.stringify({name,phone,car,radius,service,date,time})
   });
 
-  if(res.ok){
-    alert('Запись добавлена!');
-    fetchRecords();
-  } else {
-    const data = await res.json();
-    alert(data.message || 'Ошибка записи');
-  }
+  if(res.ok) alert('Запись добавлена!');
+  else alert('Ошибка при добавлении');
 }
 
-// ====== Получение всех записей ======
-async function fetchRecords(){
-  const res = await fetch('/api');
-  records = await res.json();
-  renderRecords();
-}
-
-// ====== Вход ======
-async function login(){
+async function login() {
   const loginVal = document.getElementById('loginInput').value.trim();
   const passVal = document.getElementById('passwordInput').value.trim();
 
-  const res = await fetch('/api', {
+  const res = await fetch('/api/records', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({login:loginVal,password:passVal,action:'login'})
+    body: JSON.stringify({action:'login',login:loginVal,password:passVal})
   });
 
   if(res.ok){
     const data = await res.json();
-    currentUser = data.user;
-    alert('Вход успешен');
-    document.getElementById('loginCard').classList.add('hidden');
-    document.getElementById('logoutBtn').classList.remove('hidden');
-    if(currentUser.role==='boss') document.getElementById('bossCard').classList.remove('hidden');
+    alert(`Вход выполнен. Роль: ${data.user.role}`);
+    if(data.user.role==='boss') document.getElementById('bossCard').classList.remove('hidden');
     else document.getElementById('workerCard').classList.remove('hidden');
-    fetchRecords();
-  } else {
-    alert('Неверный логин или пароль');
-  }
+    document.getElementById('loginCard').classList.add('hidden');
+  } else alert('Неверный логин или пароль');
 }
-
-// ====== Выход ======
-function logout(){
-  currentUser=null;
-  document.getElementById('loginCard').classList.remove('hidden');
-  document.getElementById('logoutBtn').classList.add('hidden');
-  document.getElementById('bossCard').classList.add('hidden');
-  document.getElementById('workerCard').classList.add('hidden');
-}
-
-// ====== Рендер записей ======
-function renderRecords(){
-  if(!records) return;
-  const workerContainer = document.getElementById('workerRecords');
-  const bossContainer = document.getElementById('bossRecords');
-
-  if(workerContainer) workerContainer.innerHTML = '';
-  if(bossContainer) bossContainer.innerHTML = '';
-
-  let total=0;
-  const now = new Date();
-
-  records.forEach(r=>{
-    const recDate = new Date(r.date);
-    // фильтр для босса
-    if(currentUser && currentUser.role==='boss'){
-      let include=false;
-      if(bossFilter==='day') include=recDate.toDateString()===now.toDateString();
-      if(bossFilter==='week'){
-        const start=new Date(now); start.setDate(now.getDate()-now.getDay());
-        const end=new Date(start); end.setDate(start.getDate()+6);
-        include=recDate>=start && recDate<=end;
-      }
-      if(bossFilter==='month') include=recDate.getMonth()===now.getMonth() && recDate.getFullYear()===now.getFullYear();
-      if(!include) return;
-    }
-
-    const div = document.createElement('div');
-    div.className='record';
-    div.innerHTML = `<b>${r.name}</b> | ${r.phone} | ${r.car} | ${r.radius} | ${r.service} | ${r.date} ${r.time}`;
-    if(currentUser.role==='boss') total += parseFloat(r.earned||0);
-    if(workerContainer && currentUser.role!=='boss') workerContainer.appendChild(div);
-    if(bossContainer && currentUser.role==='boss') bossContainer.appendChild(div);
-  });
-
-  if(document.getElementById('bossTotal')) document.getElementById('bossTotal').innerText='Сумма: '+total+' грн';
-}
-
-// ====== Фильтр для босса ======
-function setBossFilter(f){
-  bossFilter=f;
-  renderRecords();
-}
-
-// ====== Инициализация ======
-fetchRecords();
