@@ -1,41 +1,12 @@
-// ==== Supabase setup ====
-const supabaseUrl = 'https://bmasqfcvjwydpwlqqmcu.supabase.co';
-const supabaseKey = 'eyJhbGciOiJI...'; // твой anon key
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+// ==== Настройка Supabase ====
+const SUPABASE_URL = 'https://bmasqfcvjwydpwlqqmcu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_vd51ZeFzGmbof7TY5ZDoUg_z-dak7Jg'; // твой anon key
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
 
-// ==== Дата ====
+// ==== Дата по умолчанию ====
 document.getElementById('guestDate').min = new Date().toISOString().split('T')[0];
-
-// ==== Время ====
-function generateTimeButtons() {
-  const container = document.getElementById('timeButtons');
-  container.innerHTML = '';
-  const times = [];
-  for(let h=8; h<17; h++){
-    for(let m=0; m<60; m+=45){
-      let mm = m<10?'0'+m:m;
-      times.push(`${h}:${mm}`);
-    }
-  }
-  times.forEach(t=>{
-    const btn = document.createElement('button');
-    btn.className='time-btn free';
-    btn.innerText=t;
-    btn.onclick=()=>selectTime(t, btn);
-    container.appendChild(btn);
-  });
-}
-let selectedTime = null;
-function selectTime(t, btn){
-  if(btn.classList.contains('busy')) return;
-  selectedTime = t;
-  document.querySelectorAll('.time-btn').forEach(b=>b.classList.remove('selected'));
-  btn.classList.add('selected');
-  updatePrice();
-}
-generateTimeButtons();
 
 // ==== Цены ====
 const priceTable = {
@@ -46,6 +17,7 @@ const priceTable = {
   'Грузовые': { '13-15': {balance:480, full:740}, '16-18': {balance:560, full:860}, '19-21': {balance:640, full:980} },
   'Коммерческий транспорт': {}
 };
+
 function getRadiusRange(radius){
   const r = parseInt(radius.replace('R',''));
   if(r>=13 && r<=15) return '13-15';
@@ -53,6 +25,7 @@ function getRadiusRange(radius){
   if(r>=19 && r<=21) return '19-21';
   return '';
 }
+
 function updatePrice(){
   const car = document.getElementById('guestCarType').value;
   const radius = document.getElementById('radiusSelect').value;
@@ -60,14 +33,41 @@ function updatePrice(){
   const range = getRadiusRange(radius);
   let priceText = '-';
   if(priceTable[car] && priceTable[car][range]){
-    if(service.includes('Балансировка') && service.includes('с')) priceText = 'от '+priceTable[car][range].full+' грн';
-    else if(service.includes('Балансировка')) priceText = 'от '+priceTable[car][range].balance+' грн';
+    if(service.includes('Балансировка') && service.includes('с')) priceText = 'от ' + priceTable[car][range].full + ' грн';
+    else if(service.includes('Балансировка')) priceText = 'от ' + priceTable[car][range].balance + ' грн';
   }
   document.getElementById('priceDisplay').innerText = priceText;
 }
+
 document.getElementById('guestCarType').addEventListener('change', updatePrice);
 document.getElementById('radiusSelect').addEventListener('change', updatePrice);
 document.getElementById('serviceSelect').addEventListener('change', updatePrice);
+
+// ==== Кнопки времени 8:00 - 16:15 каждые 45 минут ====
+function renderTimeButtons(){
+  const container = document.getElementById('timeButtons');
+  container.innerHTML = '';
+  const times = [];
+  for(let h=8; h<=16; h++){
+    times.push(`${h}:00`);
+    times.push(`${h}:45`);
+  }
+  times.forEach(t=>{
+    const btn = document.createElement('button');
+    btn.className = 'timeBtn free';
+    btn.innerText = t;
+    btn.onclick = ()=>selectTime(t);
+    container.appendChild(btn);
+  });
+}
+
+function selectTime(time){
+  const buttons = document.querySelectorAll('.timeBtn');
+  buttons.forEach(b=>b.classList.remove('selected'));
+  const btn = Array.from(buttons).find(b=>b.innerText===time);
+  if(btn.classList.contains('busy')) return;
+  btn.classList.add('selected');
+}
 
 // ==== Добавление записи ====
 async function addGuestRecord(){
@@ -77,25 +77,25 @@ async function addGuestRecord(){
   const radius = document.getElementById('radiusSelect').value;
   const service = document.getElementById('serviceSelect').value;
   const date = document.getElementById('guestDate').value;
-  const time = selectedTime;
-
+  const timeBtn = document.querySelector('.timeBtn.selected');
+  if(!timeBtn){ alert('Выберите время!'); return; }
+  const time = timeBtn.innerText;
   if(!name || !phone || !date || !time){ alert('Заполните все поля!'); return; }
 
   // проверка занятости
-  const { data: existing } = await supabase
+  let { data: existing } = await supabase
     .from('records')
     .select('*')
     .eq('date', date)
     .eq('time', time);
-
-  if(existing.length>0){ alert('Это время уже занято'); return; }
+  if(existing.length>0){ alert('Время занято'); return; }
 
   const { error } = await supabase
     .from('records')
-    .insert([{name, phone, car, radius, service, date, time, status:'Не отмечено', addedBy:'Гость', earned:0}]);
+    .insert([{name, phone, car, radius, service, date, time, status:'Не отмечено', earned:0, addedBy:'Гость'}]);
 
-  if(error) alert('Ошибка добавления: '+error.message);
-  else { alert('Запись добавлена!'); generateTimeButtons(); }
+  if(error) alert('Ошибка: '+error.message);
+  else { alert('Запись добавлена!'); renderTimeButtons(); }
 }
 
 // ==== Вход ====
@@ -103,27 +103,32 @@ async function login(){
   const loginVal = document.getElementById('loginInput').value.trim();
   const passVal = document.getElementById('passwordInput').value.trim();
 
-  const { data: user, error } = await supabase
+  const { data, error } = await supabase
     .from('users')
     .select('*')
     .eq('login', loginVal)
     .eq('password', passVal)
     .single();
 
-  if(user){
-    currentUser = user;
-    document.getElementById('loginCard').classList.add('hidden');
-    document.getElementById('logoutBtn').classList.remove('hidden');
-    if(user.role==='boss') document.getElementById('bossCard').classList.remove('hidden');
-    else document.getElementById('workerCard').classList.remove('hidden');
-  } else alert('Неверный логин или пароль');
+  if(error || !data){ alert('Неверный логин или пароль'); return; }
+
+  currentUser = data;
+  document.getElementById('loginCard').classList.add('hidden');
+  document.getElementById('logoutBtn').classList.remove('hidden');
+
+  if(currentUser.role==='boss'){ document.getElementById('bossCard').classList.remove('hidden'); fetchBossRecords();}
+  else{ document.getElementById('workerCard').classList.remove('hidden'); fetchWorkerRecords();}
 }
 
 // ==== Выход ====
 function logout(){
   currentUser = null;
   document.getElementById('loginCard').classList.remove('hidden');
+  document.getElementById('logoutBtn').classList.add('hidden');
   document.getElementById('bossCard').classList.add('hidden');
   document.getElementById('workerCard').classList.add('hidden');
-  document.getElementById('logoutBtn').classList.add('hidden');
 }
+
+// ==== Инициализация ====
+updatePrice();
+renderTimeButtons();
