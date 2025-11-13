@@ -1,39 +1,32 @@
-// ----------------- Supabase -----------------
-const SUPABASE_URL = 'https://bmasqfcvjwydpwlqqmcu.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtYXNxZmN2and5ZHB3bHFxbWN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5NTczNDYsImV4cCI6MjA3ODUzMzM0Nn0.X2MKrdXkdHPKq-STrsUP-l_SxXYzMttjUU8yc7eWC1k';
+// ---------- Supabase ----------
+const supabaseUrl = 'https://bmasqfcvjwydpwlqqmcu.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtYXNxZmN2and5ZHB3bHFxbWN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5NTczNDYsImV4cCI6MjA3ODUzMzM0Nn0.X2MKrdXkdHPKq-STrsUP-l_SxXYzMttjUU8yc7eWC1k';
+const supabase = supabaseJs.createClient(supabaseUrl, supabaseKey);
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// ----------------- Глобальные переменные -----------------
+// ---------- Данные ----------
 let currentUser = null;
-let records = [];
+let timeSelected = null;
 
-// ----------------- ВРЕМЯ -----------------
-function fillTimeSelect(){
-    const select = document.getElementById('guestTime');
-    select.innerHTML = '';
-    let hour = 8;
-    let minute = 0;
-    while(hour < 17 || (hour === 17 && minute === 0)){
-        const hh = hour.toString().padStart(2,'0');
-        const mm = minute.toString().padStart(2,'0');
-        const option = document.createElement('option');
-        option.value = `${hh}:${mm}`;
-        option.textContent = `${hh}:${mm}`;
-        select.appendChild(option);
-        minute += 45;
-        if(minute >= 60){
-            minute -= 60;
-            hour++;
-        }
+// ---------- Слоты времени ----------
+const timeButtonsContainer = document.getElementById('timeButtonsContainer');
+const startHour = 8;
+const endHour = 16; // последний слот
+const intervalMin = 45;
+
+function generateTimeSlots() {
+  const slots = [];
+  for(let h=startHour; h<=endHour; h++){
+    let m=0;
+    while(m<60){
+      let timeStr = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
+      slots.push(timeStr);
+      m += intervalMin;
     }
+  }
+  return slots;
 }
-document.addEventListener('DOMContentLoaded', fillTimeSelect);
 
-// Минимальная дата для выбора
-document.getElementById('guestDate').min = new Date().toISOString().split('T')[0];
-
-// ----------------- ЦЕНЫ -----------------
+// ---------- Цена ----------
 const priceTable = {
   'Легковая': { '13-15': {balance:400, full:600}, '16-18': {balance:480, full:720}, '19-21': {balance:560, full:840} },
   'Кроссовер': { '13-15': {balance:440, full:680}, '16-18': {balance:520, full:800}, '19-21': {balance:600, full:920} },
@@ -44,148 +37,100 @@ const priceTable = {
 };
 
 function getRadiusRange(radius){
-    const r = parseInt(radius.replace('R',''));
-    if(r>=13 && r<=15) return '13-15';
-    if(r>=16 && r<=18) return '16-18';
-    if(r>=19 && r<=21) return '19-21';
-    return '';
+  const r = parseInt(radius.replace('R',''));
+  if(r>=13 && r<=15) return '13-15';
+  if(r>=16 && r<=18) return '16-18';
+  if(r>=19 && r<=21) return '19-21';
+  return '';
 }
 
-function updatePrice(){
-    const car = document.getElementById('guestCarType').value;
-    const radius = document.getElementById('radiusSelect').value;
-    const service = document.getElementById('serviceSelect').value;
-    const range = getRadiusRange(radius);
-    let priceText = '-';
-    if(priceTable[car] && priceTable[car][range]){
-        if(service.includes('Балансировка') && service.includes('с')) priceText = 'от ' + priceTable[car][range].full + ' грн';
-        else if(service.includes('Балансировка')) priceText = 'от ' + priceTable[car][range].balance + ' грн';
+function updatePriceDisplay() {
+  const car = document.getElementById('guestCarType').value;
+  const radius = document.getElementById('radiusSelect').value;
+  const service = document.getElementById('serviceSelect').value;
+  const range = getRadiusRange(radius);
+  let price = '-';
+  if(priceTable[car] && priceTable[car][range]){
+    if(service.includes('Балансировка') && service.includes('с')) price = 'от '+priceTable[car][range].full + ' грн';
+    else if(service.includes('Балансировка')) price = 'от '+priceTable[car][range].balance + ' грн';
+  }
+  document.getElementById('priceDisplay').innerText = price;
+}
+
+document.getElementById('guestCarType').addEventListener('change', updatePriceDisplay);
+document.getElementById('radiusSelect').addEventListener('change', updatePriceDisplay);
+document.getElementById('serviceSelect').addEventListener('change', updatePriceDisplay);
+
+// ---------- Дата ----------
+document.getElementById('guestDate').min = new Date().toISOString().split('T')[0];
+
+// ---------- Отображение кнопок ----------
+async function renderTimeButtons() {
+  const slots = generateTimeSlots();
+  timeButtonsContainer.innerHTML = '';
+  const date = document.getElementById('guestDate').value;
+  if(!date) return;
+
+  const { data: records } = await supabase.from('records').select().eq('date', date);
+  slots.forEach(t=>{
+    const busy = records.some(r=>r.time===t);
+    const btn = document.createElement('button');
+    btn.innerText = t;
+    btn.className = busy ? 'busy' : 'free';
+    if(!busy){
+      btn.onclick = () => {
+        timeSelected = t;
+        document.querySelectorAll('.time-buttons button').forEach(b=>b.classList.remove('selected'));
+        btn.classList.add('selected');
+      };
     }
-    document.getElementById('priceDisplay').innerText = priceText;
+    timeButtonsContainer.appendChild(btn);
+  });
 }
-document.getElementById('guestCarType').addEventListener('change', updatePrice);
-document.getElementById('radiusSelect').addEventListener('change', updatePrice);
-document.getElementById('serviceSelect').addEventListener('change', updatePrice);
 
-// ----------------- ЗАПИСЬ -----------------
-async function fetchRecords() {
-    const { data, error } = await supabase.from('records').select('*').order('date', {ascending:true});
-    if(!error) records = data;
-    renderRecords();
-}
+document.getElementById('guestDate').addEventListener('change', renderTimeButtons);
+renderTimeButtons();
+
+// ---------- Добавление записи ----------
 async function addGuestRecord() {
-    const name = document.getElementById('guestName').value.trim();
-    const phone = document.getElementById('guestPhone').value.trim();
-    const car = document.getElementById('guestCarType').value;
-    const radius = document.getElementById('radiusSelect').value;
-    const service = document.getElementById('serviceSelect').value;
-    const date = document.getElementById('guestDate').value;
-    const time = document.getElementById('guestTime').value;
+  const name = document.getElementById('guestName').value.trim();
+  const phone = document.getElementById('guestPhone').value.trim();
+  const car = document.getElementById('guestCarType').value;
+  const radius = document.getElementById('radiusSelect').value;
+  const service = document.getElementById('serviceSelect').value;
+  const date = document.getElementById('guestDate').value;
+  const time = timeSelected;
 
-    if(!name || !phone || !date || !time){ alert('Заполните все поля!'); return; }
+  if(!name || !phone || !date || !time){ alert('Заполните все поля!'); return; }
 
-    // Проверка на занятость времени
-    const conflict = records.find(r => r.date===date && r.time===time);
-    if(conflict){ alert(`Время ${time} на ${date} уже занято`); return; }
-
-    const { data, error } = await supabase.from('records').insert([{name, phone, car, radius, service, date, time, status:'Не отмечено', addedBy:'Гость', earned:0}]);
-    if(error) alert('Ошибка при добавлении: ' + error.message);
-    else { alert('Запись добавлена!'); fetchRecords(); }
+  const { error } = await supabase.from('records').insert([{ name, phone, car, radius, service, date, time, status:'Не отмечено', addedBy:'Гость', earned:0 }]);
+  if(error){ alert('Ошибка при добавлении: '+error.message); return; }
+  alert('Запись добавлена!');
+  timeSelected = null;
+  renderTimeButtons();
+  updatePriceDisplay();
 }
 
-// ----------------- ЛОГИН -----------------
-async function login() {
-    const loginVal = document.getElementById('loginInput').value.trim();
-    const passVal = document.getElementById('passwordInput').value.trim();
+// ---------- Вход (только босс/работник) ----------
+async function login(){
+  const loginVal = document.getElementById('loginInput').value.trim();
+  const passVal = document.getElementById('passwordInput').value.trim();
 
-    let user = null;
-    if(loginVal==='boss' && passVal==='kolovo.123q') user={login:'boss', role:'boss'};
-    else if(loginVal==='worker' && passVal==='Vlad.123q') user={login:'worker', role:'worker'};
+  const { data: users, error } = await supabase.from('users').select().eq('login', loginVal).eq('password', passVal);
+  if(error || users.length===0){ alert('Неверный логин или пароль'); return; }
+  currentUser = users[0];
+  alert(`Вход выполнен. Роль: ${currentUser.role}`);
 
-    if(user){
-        currentUser = user;
-        document.getElementById('loginCard').classList.add('hidden');
-        document.getElementById('logoutBtn').classList.remove('hidden');
-        if(user.role==='boss') document.getElementById('bossCard').classList.remove('hidden');
-        else document.getElementById('workerCard').classList.remove('hidden');
-        fetchRecords();
-    } else alert('Неверный логин или пароль');
+  document.getElementById('loginCard').classList.add('hidden');
+  document.getElementById('logoutBtn').classList.remove('hidden');
+  if(currentUser.role==='boss') document.getElementById('bossCard').classList.remove('hidden');
+  else document.getElementById('workerCard').classList.remove('hidden');
 }
+
 function logout(){
-    currentUser=null;
-    document.getElementById('bossCard').classList.add('hidden');
-    document.getElementById('workerCard').classList.add('hidden');
-    document.getElementById('logoutBtn').classList.add('hidden');
-    document.getElementById('loginCard').classList.remove('hidden');
+  currentUser = null;
+  document.getElementById('bossCard').classList.add('hidden');
+  document.getElementById('workerCard').classList.add('hidden');
+  document.getElementById('logoutBtn').classList.add('hidden');
+  document.getElementById('loginCard').classList.remove('hidden');
 }
-
-// ----------------- РЕНДЕР -----------------
-function renderRecords(){
-    const containerWorker = document.getElementById('workerRecords');
-    const containerBoss = document.getElementById('bossRecords');
-    if(containerWorker) containerWorker.innerHTML='';
-    if(containerBoss) containerBoss.innerHTML='';
-
-    let total=0;
-    const now = new Date();
-    const bossFilter = document.getElementById('earningPeriod')?.value || 'day';
-
-    records.forEach(r=>{
-        // Цена по прайсу
-        const range = getRadiusRange(r.radius);
-        let price=0;
-        if(priceTable[r.car] && priceTable[r.car][range]){
-            if(r.service.includes('Балансировка') && r.service.includes('с')) price=priceTable[r.car][range].full;
-            else if(r.service.includes('Балансировка')) price=priceTable[r.car][range].balance;
-        }
-        total += price + (r.earned || 0);
-
-        // --- Работник ---
-        if(currentUser?.role==='worker'){
-            const div = document.createElement('div');
-            div.className='record';
-            div.innerHTML = `<b>${r.name}</b> | ${r.phone} | ${r.car} | ${r.radius} | ${r.service} | ${r.date} ${r.time}
-            <div class="meta">Статус: ${r.status} | Отметил: ${r.addedBy} | Заработано: ${r.earned} грн</div>
-            <div class="controls">
-              <button onclick="markRecord(${r.id},'Приехал')">Приехал</button>
-              <button onclick="markRecord(${r.id},'Не приехал')">Не приехал</button>
-            </div>`;
-            containerWorker.appendChild(div);
-        }
-
-        // --- Босс ---
-        if(currentUser?.role==='boss'){
-            const div = document.createElement('div');
-            div.className='record';
-            div.innerHTML = `<b>${r.name}</b> | ${r.phone} | ${r.car} | ${r.radius} | ${r.service} | ${r.date} ${r.time}
-            <div class="meta">Статус: ${r.status} | Отметил: ${r.addedBy} | Цена: ${price} грн | Заработано: ${r.earned} грн</div>
-            <div class="controls">
-              <button onclick="deleteRecord(${r.id})">Удалить</button>
-            </div>`;
-            containerBoss.appendChild(div);
-        }
-    });
-
-    if(currentUser?.role==='boss'){
-        document.getElementById('bossTotal').innerText = 'Сумма: '+total+' грн';
-    }
-}
-
-// ----------------- ФУНКЦИИ ИЗМЕНЕНИЯ -----------------
-async function markRecord(id, status){
-    const earned = status==='Приехал' ? parseFloat(prompt('Введите сумму за услугу:')) : 0;
-    const { data, error } = await supabase.from('records').update({status, earned}).eq('id', id);
-    if(!error) fetchRecords();
-}
-
-async function deleteRecord(id){
-    const { data, error } = await supabase.from('records').delete().eq('id', id);
-    if(!error) fetchRecords();
-}
-
-// ----------------- ИНИЦИАЛИЗАЦИЯ -----------------
-document.addEventListener('DOMContentLoaded', ()=>{
-    fillTimeSelect();
-    updatePrice();
-    fetchRecords();
-});
