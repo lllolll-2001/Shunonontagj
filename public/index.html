@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Шиномонтаж</title>
 <link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -69,16 +68,17 @@
   <!-- === Кабинет босса === -->
   <div class="card hidden" id="bossCard">
     <h2>Кабинет босса</h2>
-    <div class="top-actions">
-      <button onclick="filterRecords('day')">День</button>
-      <button onclick="filterRecords('week')">Неделя</button>
-      <button onclick="filterRecords('month')">Месяц</button>
+    <div>
+      <label>С: <input type="date" id="bossDateFrom"></label>
+      <label>До: <input type="date" id="bossDateTo"></label>
+      <button onclick="filterBossRecords()">Показать</button>
     </div>
     <div id="bossRecords"></div>
     <div id="bossTotal">Сумма: 0 грн</div>
   </div>
 
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.1.0/dist/supabase.min.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
