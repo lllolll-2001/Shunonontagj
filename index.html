@@ -11,11 +11,12 @@
 
   <header>
     <h1>Шиномонтаж</h1>
+    <button id="logoutBtn" class="hidden" onclick="logout()">Выйти</button>
   </header>
 
   <!-- === Карточка записи === -->
-  <div class="card">
-    <h2>Запись</h2>
+  <div class="card" id="bookingCard">
+    <h2>Бронь</h2>
     <div class="form-row">
       <input type="text" id="guestName" placeholder="Имя">
       <select id="guestCarType">
@@ -46,17 +47,16 @@
       <button onclick="addGuestRecord()">Записаться</button>
     </div>
 
-    <!-- === График и контакты === -->
     <div class="info-row">
-      <p>График работы: 8:00 - 17:00</p>
-      <a href="https://maps.app.goo.gl/8dckvubnHAVDgD2G6" target="_blank"><button>Мы на карте</button></a>
+      <p>Рабочие часы: 8:00 - 17:00</p>
+      <a href="https://maps.app.goo.gl/8dckvubnHAVDgD2G6" target="_blank"><button>Карта</button></a>
       <a href="https://t.me/VladyslavShunu" target="_blank"><button>Telegram</button></a>
     </div>
   </div>
 
   <!-- === Вход === -->
   <div class="card" id="loginCard">
-    <h2>Вход</h2>
+    <h2>Вход в кабинет</h2>
     <input type="text" id="loginInput" placeholder="Логин">
     <input type="password" id="passwordInput" placeholder="Пароль">
     <button onclick="login()">Войти</button>
@@ -65,12 +65,14 @@
   <!-- === Кабинет работника === -->
   <div class="card hidden" id="workerCard">
     <h2>Кабинет работника</h2>
+    <button onclick="changeCredentials()">Сменить логин/пароль</button>
     <div id="workerRecords"></div>
   </div>
 
   <!-- === Кабинет босса === -->
   <div class="card hidden" id="bossCard">
     <h2>Кабинет босса</h2>
+    <button onclick="changeCredentials()">Сменить логин/пароль</button>
     <div class="top-actions">
       <button onclick="setBossFilter('day')">День</button>
       <button onclick="setBossFilter('week')">Неделя</button>
@@ -81,6 +83,7 @@
   </div>
 
 </div>
+
 <script src="script.js"></script>
 </body>
 </html>
